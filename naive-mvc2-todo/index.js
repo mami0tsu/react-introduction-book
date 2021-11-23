@@ -50,6 +50,8 @@ class TodoListModel {
   }
 }
 
+const todoList = new TodoListModel();
+
 class View {
   /**
    * Add todo to UI
@@ -124,3 +126,62 @@ class View {
     return todoElement;
   }
 }
+
+const view = new View();
+
+class Controller {
+  setup() {
+    this.handleSubmitForm();
+  }
+
+  handleSubmitForm() {
+    const formElement = document.getElementById("task-send-form");
+
+    formElement.addEventListener("submit", (e) => {
+      e.preventDefault();
+      
+      const input = document.getElementById("task-input");
+      const task = input.value;
+
+      if (!task.length > 0) {
+        alert("Input text.")
+        return;
+      }
+
+      const addedTodoId = todoList.addTodo(task);
+      const todo = todoList.getTodo(addedTodoId);
+
+      view.addTodo(todo);
+
+      this.handleCheckTask(todo.id);
+      this.handleDeleteTask(todo.id);
+
+      view.resetTodo();
+    });
+  }
+
+  handleCheckTask(id) {
+    const checkBoxElement = document.getElementById(`checkbox-${id}`);
+    checkBoxElement.onchange = function (e) {
+      const checked = e.target.checked;
+      const stateChangedTodo = todoList.checkTodo(id, checked);
+
+      if (stateChangedTodo.checked) {
+        view.check(stateChangedTodo.id);
+      } else {
+        view.uncheck(stateChangedTodo.id);
+      }
+    };
+  }
+
+  handleDeleteTask(id) {
+    todoList.removeTodo(id);
+    const buttonElement = document.getElementById(`button-${id}`);
+    buttonElement.onclick = function () {
+      view.removeTodo(id);
+    };
+  }
+}
+
+const formController = new Controller();
+formController.setup();
